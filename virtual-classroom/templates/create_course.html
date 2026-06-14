@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Create Course - EduCloud{% endblock %}</title>
+</head>
+<body>
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="form-wrapper" style="padding: 40px 0;">
+    <div class="form-card glass-panel" style="max-width: 580px;">
+        <!-- Form Header -->
+        <div class="form-header">
+            <h2>Create New Course</h2>
+            <p>Fill out the details below to publish a new course shell</p>
+        </div>
+        
+        <form action="{{ url_for('create_course') }}" method="POST" enctype="multipart/form-data">
+            <!-- Course Title -->
+            <div class="form-group">
+                <label for="title" class="form-label">Course Title</label>
+                <input type="text" id="title" name="title" class="form-control" placeholder="e.g. AWS Cloud Architecture Foundations" required>
+            </div>
+            
+            <!-- Category Selection -->
+            <div class="form-group">
+                <label for="category" class="form-label">Syllabus Category</label>
+                <select id="category" name="category" class="form-control" required style="background-color: var(--bg-accent);">
+                    <option value="" disabled selected>Select a category...</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Cloud Computing">Cloud Computing</option>
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="Data Science">Data Science</option>
+                    <option value="Business & Finance">Business & Finance</option>
+                    <option value="General Engineering">General Engineering</option>
+                </select>
+            </div>
+            
+            <!-- Description -->
+            <div class="form-group">
+                <label for="description" class="form-label">Course Description</label>
+                <textarea id="description" name="description" rows="5" class="form-control" placeholder="Provide a detailed syllabus overview for enrolling students..." required style="resize: vertical;"></textarea>
+            </div>
+            
+            <!-- Thumbnail Upload -->
+            <div class="form-group">
+                <label for="thumbnail" class="form-label">Course Thumbnail (Optional)</label>
+                <input type="file" id="thumbnail" name="thumbnail" class="form-control" style="padding: 8px;">
+                <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 6px;">
+                    This file is uploaded to S3 and used on course cards (Leave blank for default system graphic)
+                </span>
+            </div>
+            
+            <div style="display: flex; gap: 16px; margin-top: 24px;">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary" style="flex: 1; text-align: center;">Cancel</a>
+                <button type="submit" class="btn btn-primary" style="flex: 2;">
+                    <i class="fa-solid fa-square-plus"></i> Create & Publish
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+</body>
+</html>

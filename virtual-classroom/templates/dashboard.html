@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Dashboard - EduCloud{% endblock %}</title>
+</head>
+<body>
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-grid">
+        <!-- Sidebar Navigation & User Profile -->
+        <aside class="sidebar-panel glass-panel">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {{ g.user.name[0] | upper }}
+                </div>
+                <div class="user-info">
+                    <h4>{{ g.user.name }}</h4>
+                    <span>{{ g.user.role }}</span>
+                </div>
+            </div>
+            
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="{{ url_for('dashboard') }}" class="sidebar-link active">
+                        <i class="fa-solid fa-house"></i> Home Dashboard
+                    </a>
+                </li>
+                {% if g.user.role == 'instructor' %}
+                    <li>
+                        <a href="{{ url_for('create_course') }}" class="sidebar-link">
+                            <i class="fa-solid fa-plus"></i> Create Course
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </aside>
+
+        <!-- Main Dashboard Viewport -->
+        <section class="dashboard-main">
+            <!-- Analytics Cards -->
+            <div class="analytics-row">
+                {% if analytics.role == 'instructor' %}
+                    <div class="analytics-card glass-panel">
+                        <div class="analytics-details">
+                            <h3>{{ analytics.total_courses }}</h3>
+                            <p>Courses Created</p>
+                        </div>
+                        <div class="analytics-icon"><i class="fa-solid fa-book-open"></i></div>
+                    </div>
+                    <div class="analytics-card glass-panel">
+                        <div class="analytics-details">
+                            <h3>{{ analytics.total_students }}</h3>
+                            <p>Enrolled Students</p>
+                        </div>
+                        <div class="analytics-icon"><i class="fa-solid fa-users"></i></div>
+                    </div>
+                {% else %}
+                    <div class="analytics-card glass-panel">
+                        <div class="analytics-details">
+                            <h3>{{ analytics.enrolled_count }}</h3>
+                            <p>Enrolled Courses</p>
+                        </div>
+                        <div class="analytics-icon"><i class="fa-solid fa-user-check"></i></div>
+                    </div>
+                    <div class="analytics-card glass-panel">
+                        <div class="analytics-details">
+                            <h3>{{ analytics.available_count }}</h3>
+                            <p>Available Courses</p>
+                        </div>
+                        <div class="analytics-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Chart.js Graph Panel -->
+            <div class="glass-panel" style="padding: 24px; margin-bottom: 40px; height: 320px; position: relative;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 20px;"><i class="fa-solid fa-chart-line" style="color: var(--color-primary); margin-right: 8px;"></i> Performance Analytics</h3>
+                <div style="height: calc(100% - 40px); width: 100%;">
+                    {% if analytics.role == 'instructor' %}
+                        <canvas id="analyticsChart" data-courses="{{ analytics.total_courses }}" data-students="{{ analytics.total_students }}" data-role="instructor"></canvas>
+                    {% else %}
+                        <canvas id="analyticsChart" data-courses="{{ analytics.enrolled_count }}" data-students="{{ analytics.available_count }}" data-role="student"></canvas>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Courses Lists -->
+            {% if g.user.role == 'instructor' %}
+                <div class="section-header">
+                    <h2>My Created Courses</h2>
+                    <a href="{{ url_for('create_course') }}" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-plus"></i> New Course
+                    </a>
+                </div>
+                
+                {% if courses %}
+                    <div class="courses-grid">
+                        {% for course in courses %}
+                            <div class="course-card glass-panel">
+                                <div class="course-thumbnail" style="background-image: url('{{ course.thumbnail_url }}');">
+                                    <span class="course-badge">{{ course.category }}</span>
+                                </div>
+                                <div class="course-body">
+                                    <h3 class="course-title">{{ course.title }}</h3>
+                                    <p class="course-description">{{ course.description }}</p>
+                                    
+                                    <div class="course-footer">
+                                        <div class="instructor-info">
+                                            Students enrolled
+                                            <span>{{ course.student_count }}</span>
+                                        </div>
+                                        <a href="{{ url_for('course_detail', course_id=course.id) }}" class="btn btn-secondary btn-sm">Manage</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="glass-panel" style="padding: 40px; text-align: center;">
+                        <p style="color: var(--text-secondary); margin-bottom: 20px;">You haven't created any courses yet.</p>
+                        <a href="{{ url_for('create_course') }}" class="btn btn-primary">Create Your First Course</a>
+                    </div>
+                {% endif %}
+                
+            {% else %}
+                <!-- Student Views -->
+                <div class="section-header">
+                    <h2>My Enrolled Courses</h2>
+                </div>
+                
+                {% if enrolled_courses %}
+                    <div class="courses-grid" style="margin-bottom: 40px;">
+                        {% for course in enrolled_courses %}
+                            <div class="course-card glass-panel">
+                                <div class="course-thumbnail" style="background-image: url('{{ course.thumbnail_url }}');">
+                                    <span class="course-badge">{{ course.category }}</span>
+                                </div>
+                                <div class="course-body">
+                                    <h3 class="course-title">{{ course.title }}</h3>
+                                    <p class="course-description">{{ course.description }}</p>
+                                    
+                                    <div class="course-footer">
+                                        <div class="instructor-info">
+                                            Instructor
+                                            <span>{{ course.instructor_name }}</span>
+                                        </div>
+                                        <a href="{{ url_for('course_detail', course_id=course.id) }}" class="btn btn-primary btn-sm">Enter</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="glass-panel" style="padding: 40px; text-align: center; margin-bottom: 40px;">
+                        <p style="color: var(--text-secondary);">You are not enrolled in any courses yet. Check out the available courses below!</p>
+                    </div>
+                {% endif %}
+
+                <div class="section-header">
+                    <h2>Explore Available Courses</h2>
+                </div>
+                
+                {% if available_courses %}
+                    <div class="courses-grid">
+                        {% for course in available_courses %}
+                            <div class="course-card glass-panel">
+                                <div class="course-thumbnail" style="background-image: url('{{ course.thumbnail_url }}');">
+                                    <span class="course-badge">{{ course.category }}</span>
+                                </div>
+                                <div class="course-body">
+                                    <h3 class="course-title">{{ course.title }}</h3>
+                                    <p class="course-description">{{ course.description }}</p>
+                                    
+                                    <div class="course-footer">
+                                        <div class="instructor-info">
+                                            Instructor
+                                            <span>{{ course.instructor_name }}</span>
+                                        </div>
+                                        <a href="{{ url_for('course_detail', course_id=course.id) }}" class="btn btn-secondary btn-sm">Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="glass-panel" style="padding: 40px; text-align: center;">
+                        <p style="color: var(--text-secondary);">No new courses available at the moment.</p>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}EduCloud - Scalable AWS Virtual Classroom{% endblock %}</title>
+</head>
+<body>
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="hero">
+    <div class="container" style="display: flex; flex-direction: column; align-items: center;">
+        <div class="hero-badge">
+            <i class="fa-solid fa-cloud" style="margin-right: 6px;"></i> AWS-Powered Virtual Learning
+        </div>
+        <h1 class="hero-title">
+            The Next-Generation <span>Virtual Classroom</span> Platform
+        </h1>
+        <p class="hero-subtitle">
+            A secure, scalable, and high-performance educational portal built on Amazon Web Services. Upload materials to S3, manage student rosters via RDS, and learn instantly.
+        </p>
+        <div class="hero-buttons">
+            <a href="{{ url_for('register') }}" class="btn btn-primary">
+                <i class="fa-solid fa-user-plus"></i> Join as a Student
+            </a>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> Student Login
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="container" style="padding-bottom: 80px;">
+    <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card glass-panel">
+            <div class="feature-icon">
+                <i class="fa-brands fa-aws"></i>
+            </div>
+            <h3>AWS S3 Storage</h3>
+            <p>Direct upload pipeline for lecture videos, slide presentations, and academic documents. Instantly served with high availability and security.</p>
+        </div>
+        
+        <!-- Feature 2 -->
+        <div class="feature-card glass-panel">
+            <div class="feature-icon">
+                <i class="fa-solid fa-database"></i>
+            </div>
+            <h3>AWS RDS MySQL</h3>
+            <p>Managed relational database handling user authentication, course configurations, student enrollments, and material metadata relationships.</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card glass-panel">
+            <div class="feature-icon">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3>EC2 High Security</h3>
+            <p>Deploy ready architecture equipped with SSL connections, password encryption hashing, and role-based route guard shields.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{{ course.title }} - EduCloud{% endblock %}</title>
+</head>
+<body>
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <!-- Back to Dashboard -->
+    <div style="margin-top: 30px;">
+        <a href="{{ url_for('dashboard') }}" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="course-detail-layout">
+        <!-- Main Course Dashboard -->
+        <div>
+            <div class="course-main-header">
+                <span class="course-category">{{ course.category }}</span>
+                <h1 class="course-main-title">{{ course.title }}</h1>
+            </div>
+
+            <div class="course-meta-row">
+                <div class="course-meta-item">
+                    Instructor: <strong>{{ course.instructor_name }}</strong>
+                </div>
+                <div class="course-meta-item">
+                    Created: <strong>{{ course.created_at.strftime('%Y-%m-%d') if course.created_at else 'N/A' }}</strong>
+                </div>
+            </div>
+
+            <!-- Custom Video Player Panel (Hidden until a video is selected) -->
+            {% if enrolled and materials %}
+                <div class="video-container" style="display: none; margin-bottom: 40px;">
+                    <video id="activeVideo" controls controlsList="nodownload">
+                        <source id="videoSource" src="" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+                </div>
+            {% endif %}
+
+            <div class="course-overview">
+                <h3>About this Course</h3>
+                <p>{{ course.description }}</p>
+            </div>
+
+            <!-- Materials list section -->
+            <div style="margin-top: 40px;">
+                <h3 style="font-size: 1.3rem; margin-bottom: 24px;">
+                    <i class="fa-solid fa-folder-open" style="color: var(--color-primary); margin-right: 8px;"></i> Course Syllabus & Materials
+                </h3>
+                
+                {% if not enrolled %}
+                    <div class="glass-panel" style="padding: 40px; text-align: center;">
+                        <i class="fa-solid fa-lock" style="font-size: 2.5rem; color: var(--text-muted); margin-bottom: 16px;"></i>
+                        <h4 style="margin-bottom: 8px;">Content Locked</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; max-width: 400px; margin: 0 auto 20px auto;">
+                            Please enroll in this course to access lecture videos, slide decks, and worksheets.
+                        </p>
+                        <form action="{{ url_for('enroll', course_id=course.id) }}" method="POST">
+                            <button type="submit" class="btn btn-primary">Enroll Now</button>
+                        </form>
+                    </div>
+                {% else %}
+                    {% if materials %}
+                        <div class="materials-list">
+                            {% for mat in materials %}
+                                <div class="material-item glass-panel" data-url="{{ mat.file_url }}" data-type="{{ mat.file_type }}" style="cursor: {% if mat.file_type == 'video' %}pointer{% else %}default{% endif %};">
+                                    <div class="material-info">
+                                        <div class="material-icon-box {{ mat.file_type }}">
+                                            {% if mat.file_type == 'video' %}
+                                                <i class="fa-solid fa-play"></i>
+                                            {% elif mat.file_type == 'pdf' %}
+                                                <i class="fa-solid fa-file-pdf"></i>
+                                            {% elif mat.file_type == 'slides' %}
+                                                <i class="fa-solid fa-file-powerpoint"></i>
+                                            {% else %}
+                                                <i class="fa-solid fa-file-lines"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="material-title">
+                                            <h4>{{ mat.title }}</h4>
+                                            <span>
+                                                Uploaded: {{ mat.uploaded_at.strftime('%Y-%m-%d') if mat.uploaded_at else 'N/A' }} 
+                                                {% if mat.file_type == 'video' %}(Click row to play video above){% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <a href="{{ mat.file_url }}" target="_blank" download class="btn btn-secondary btn-sm btn-download">
+                                        <i class="fa-solid fa-download"></i> Save
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="glass-panel" style="padding: 40px; text-align: center;">
+                            <p style="color: var(--text-secondary);">No study materials have been uploaded to S3 for this course yet.</p>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar / Instructor Control Panel / Student Enrollment Banner -->
+        <div>
+            {% if not enrolled %}
+                <div class="course-side-box glass-panel">
+                    <div class="side-box-header">
+                        <h3>Start Learning</h3>
+                        <p>Enroll today to get access to all lectures</p>
+                    </div>
+                    <form action="{{ url_for('enroll', course_id=course.id) }}" method="POST" class="enroll-cta">
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <i class="fa-solid fa-user-plus"></i> Enroll in Course
+                        </button>
+                    </form>
+                </div>
+            {% elif is_instructor %}
+                <div class="course-side-box glass-panel">
+                    <div class="side-box-header">
+                        <h3>Instructor Deck</h3>
+                        <p>Upload material to AWS S3 bucket</p>
+                    </div>
+                    
+                    <form action="{{ url_for('add_material', course_id=course.id) }}" method="POST" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="material_title" class="form-label">Resource Title</label>
+                            <input type="text" id="material_title" name="title" class="form-control" placeholder="e.g. Chapter 1 Lecture" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="material_file" class="form-label">Upload File</label>
+                            <input type="file" id="material_file" name="file" class="form-control" required style="padding: 8px;">
+                            <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 6px;">
+                                Supported: PDF, PowerPoint (PPTX), MP4, webm
+                            </span>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 16px;">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Upload to S3
+                        </button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="course-side-box glass-panel" style="text-align: center;">
+                    <i class="fa-solid fa-circle-check" style="font-size: 2.5rem; color: var(--color-success); margin-bottom: 12px;"></i>
+                    <h3>Enrolled Member</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 4px;">You have active access to this classroom.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+</body>
+</html>

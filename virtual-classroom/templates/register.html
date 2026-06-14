@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Register - EduCloud{% endblock %}</title>
+</head>
+<body>
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="form-wrapper">
+    <div class="form-card glass-panel">
+        <div class="form-header">
+            <h2>Create Account</h2>
+            <p>Get started with the virtual classroom platform</p>
+        </div>
+        
+        <form action="{{ url_for('register') }}" method="POST">
+            <!-- Account Role Custom Toggle Cards -->
+            <label class="form-label" style="text-align: center; margin-bottom: 12px;">Choose Your Role</label>
+            <div class="role-selector">
+                <div class="role-option active">
+                    <input type="radio" name="role" value="student" checked>
+                    <span class="role-icon"><i class="fa-solid fa-graduation-cap"></i></span>
+                    <span class="role-name">Student</span>
+                </div>
+                <div class="role-option">
+                    <input type="radio" name="role" value="instructor">
+                    <span class="role-icon"><i class="fa-solid fa-chalkboard-user"></i></span>
+                    <span class="role-name">Instructor</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="name" class="form-label">Full Name</label>
+                <input type="text" id="name" name="name" class="form-control" placeholder="John Doe" required autocomplete="name">
+            </div>
+            
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="john@domain.com" required autocomplete="email">
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Create a strong password" required autocomplete="new-password">
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 16px;">
+                <i class="fa-solid fa-user-plus"></i> Sign Up
+            </button>
+        </form>
+        
+        <div style="text-align: center; margin-top: 24px;">
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                Already have an account? <a href="{{ url_for('login') }}" style="color: var(--color-primary); text-decoration: none; font-weight: 600;">Log in</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+</body>
+</html>
